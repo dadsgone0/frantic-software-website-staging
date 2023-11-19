@@ -1,0 +1,48 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy_to_staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to GCE staging
+        uses: cross-the-world/ssh-pipeline@v1.2.0
+        with:
+    # ssh remote host
+          host: ${{ secrets.GCE_IP }}
+    # ssh remote user
+          user: ${{ secrets.GCE_USER }}
+    # content of ssh private key. ex raw content of ~/.ssh/id_rsa
+          key: ${{ secrets.PRIVATE_KEY }}
+    # execute commands on ssh
+          script: |
+            sudo ./script.sh
+          
+
+      - name: Create PR to prod
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'github-actions-bot@example.com'
+
+          # Clone the prod repository
+          git clone https://github.com/dadsgone0/frantic-software-website-prod
+
+          # Copy the new changes from the staging repository
+          cp -r $GITHUB_WORKSPACE/* frantic-software-website-prod/
+
+          # Commit and push the changes
+          cd frantic-software-website-prod
+          git add .
+          git commit -m "New changes from staging"
+          git push origin main
+
+          # Create a pull request using the GitHub CLI
+          gh pr create --title "New changes from staging" --body "Please review the new changes." --repo username/prod-repo --base main --head staging
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
