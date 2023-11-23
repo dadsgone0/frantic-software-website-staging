@@ -1,48 +1,41 @@
-name: CI/CD Pipeline (Staging)
+name: CI/CD Build (Staging)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  deploy_to_staging:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Deploy to GCE staging
-        uses: cross-the-world/ssh-pipeline@v1.2.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
         with:
-    # ssh remote host
-          host: ${{ secrets.GCE_IP }}
-    # ssh remote user
-          user: ${{ secrets.GCE_USER }}
-    # content of ssh private key. ex raw content of ~/.ssh/id_rsa
-          key: ${{ secrets.PRIVATE_KEY }}
-    # execute commands on ssh
-          script: |
-            sudo ./script.sh
-          
+          node-version: '14'
 
-      - name: Create PR to prod
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update modules and build
         run: |
-          git config --global user.name 'GitHub Actions Bot'
-          git config --global user.email 'github-actions-bot@example.com'
+          npm run update-modules
+          npm run build
 
-          # Clone the prod repository
-          git clone https://github.com/dadsgone0/frantic-software-website-prod
-
-          # Copy the new changes from the staging repository
-          cp -r $GITHUB_WORKSPACE/* frantic-software-website-prod/
-
-          # Commit and push the changes
-          cd frantic-software-website-prod
-          git add .
-          git commit -m "New changes from staging"
-          git push origin main
-
-          # Create a pull request using the GitHub CLI
-          gh pr create --title "New changes from staging" --body "Please review the new changes." --repo username/prod-repo --base main --head staging
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Update modules and build
+          committer: dadsgone0 <${{ secrets.EMAIL }}>
+          author: dadsgone0 <${{ secrets.EMAIL }}>
+          title: 'New code from staging'
+          body: 'New code from staging'
+          branch: 'staging'
+          base: main
+          head: dadsgone0/frantic-software-website-prod
+          labels: 'update, build'
