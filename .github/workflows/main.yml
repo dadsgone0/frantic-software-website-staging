@@ -5,6 +5,21 @@ on:
     branches:
       - main
 
+      # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Environment variables available to all jobs and steps in this workflow
+env:
+  HUGO_ENV: production
+  HUGO_VERSION: "0.118.2"
+  GO_VERSION: "1.20.5"
+  NODE_VERSION: "18.15.0"
+  TINA_CLIENT_ID: ${{ vars.TINA_CLIENT_ID }}
+  TINA_TOKEN: ${{ vars.TINA_TOKEN }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,13 +33,35 @@ jobs:
         with:
           node-version: '14'
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Update modules and build
+      - name: Install Hugo
         run: |
-          npm run update-modules
-          npm run build
+          curl -LO "https://github.com/gohugoio/hugo/releases/download/v${{ env.HUGO_VERSION }}/hugo_extended_${{ env.HUGO_VERSION }}_Linux-64bit.tar.gz"
+          tar -xvf hugo_extended_${{ env.HUGO_VERSION }}_Linux-64bit.tar.gz
+          sudo mv hugo /usr/local/bin/
+          rm hugo_extended_${{ env.HUGO_VERSION }}_Linux-64bit.tar.gz
+          hugo version
+
+      - name: Install Go
+        run: |
+          curl -LO "https://dl.google.com/go/go${{ env.GO_VERSION }}.linux-amd64.tar.gz"
+          sudo tar -C /usr/local -xzf go${{ env.GO_VERSION }}.linux-amd64.tar.gz
+          echo "export PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
+          rm go${{ env.GO_VERSION }}.linux-amd64.tar.gz
+          go version
+
+      - name: Setup Project
+        run: npm run project-setup
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Publish to GitHub Pages
+        run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./public
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
