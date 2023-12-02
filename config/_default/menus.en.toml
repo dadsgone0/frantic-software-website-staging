@@ -1,0 +1,62 @@
+############# English navigation ##############
+
+# main menu
+[[main]]
+name = "Home"
+url = "/"
+weight = 1
+
+[[main]]
+name = "About"
+url = "about/"
+weight = 2
+
+[[main]]
+name = "Blog"
+url = "blog/"
+weight = 3
+
+[[main]]
+name = "Contact"
+url = "contact/"
+weight = 4
+
+[[main]]
+weight = 5
+name = "Services"
+hasChildren = true
+
+[[main]]
+name = "Contact"
+url = "contact/"
+
+[[main]]
+parent = "Services"
+name = "Cloud Store"
+url = "cloudstore/"
+
+[[main]]
+parent = "Services"
+name = "Satellite CDN"
+url = "satellitecdn/"
+
+[[main]]
+parent = "Services"
+name = "Cloud Media Tools"
+url = "cmt/"
+
+[[main]]
+parent = "Services"
+name = "RenderCloud"
+url = "rendercloud/"
+
+# footer menu
+[[footer]]
+name = "About"
+url = "about/"
+weight = 1
+
+[[footer]]
+name = "Privacy Policy"
+url = "privacy-policy/"
+weight = 3
