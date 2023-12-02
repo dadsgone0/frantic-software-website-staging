@@ -26,6 +26,7 @@ Cloud Media Tools (CMT)
 API  
 RenderCloud  
 Cloud Store Archival  
+Mobile app 
 
 THOUGHTS ON FUTURE SERVICES:  
 FRANTIC! OnSite. I could honestly do a whole blog post on this specific thought, because it's so fleshed out and cool. It's a distant thought though, i'd need a lot of money. Anyways, OnSite would be servers that would be hand built and meant for a local version on Cloud Store (more meant for enterprise users)  
