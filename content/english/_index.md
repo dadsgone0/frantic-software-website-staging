@@ -17,7 +17,7 @@ features:
     bulletpoints:
       - "$0.009 per gigabyte with Cloud Store standard"
       - "$0.005 per gigabyte with Cloud Store archival (Coming soon)"
-      - "Built on the rock solid foundation of Backblaze and Amazon"
+      - "More than just Cloud Store"
       - "Mobile app (Coming soon)"
       - "More flexible than Google Drive or iCloud"
     button:
